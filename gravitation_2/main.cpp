@@ -12,7 +12,7 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 int framecount = 1;
 
-const float G = 16;
+const float G = 8;
 
 bool DRAW_PLANETS = true;
 
@@ -42,16 +42,16 @@ struct particle
 };
 
 const float PLANET_SIZE = 5;
-int PLANET_NBR = 22;
+int PLANET_NBR = 3;
 std::vector<Vector2D> planets;
 
-const int PART_NBR = 300;
+const int PART_NBR = 40;
 const float PARTICLE_SIZE = 2;
 std::vector<particle> particles;
 
 const float MAX_DIST = 180;
 const float MIN_DIST = 25;
-const float SAFE_DIST = 45;
+const float SAFE_DIST = 0;
 
 //Starts up SDL and creates window
 bool init();
