@@ -2,3 +2,6 @@
 .vscode/
 movio/
 sdl-app
+glm/
+
+*.mp4

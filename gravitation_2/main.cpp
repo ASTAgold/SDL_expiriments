@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "time.h"
 #include <vector>
+#include <array>
+#include <string>
 #include "include/vector2d.h"
 #include "include/math_utils.h"
 
@@ -12,19 +14,26 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 int framecount = 1;
 
-const float G = 8;
+const float G = 12;
 
 bool DRAW_PLANETS = true;
+
+const int PREV_POS_NBR = 10;
 
 struct particle
 {
     Vector2D pos;
+	std::array<Vector2D, PREV_POS_NBR> prev_pos;
     Vector2D vel;
     Vector2D acc;
 
 	particle(Vector2D arg_position)
 	{
 		pos = arg_position;
+		for(int i = 0; i < PREV_POS_NBR; i++)
+		{
+			prev_pos[i] = pos;
+		}
 		vel = Vector2D(0, 0);
 		acc = Vector2D(0, 0);
 	}
@@ -35,23 +44,29 @@ struct particle
     }
     void update()
 	{
+		//store the previous positions
+		prev_pos[0] = pos;
+		for(int i = PREV_POS_NBR-1; i >= 1; i--)
+		{
+			prev_pos[i] = prev_pos[i-1];
+		}
         vel += acc;
         pos += vel;
         acc *= 0;
     }
 };
 
-const float PLANET_SIZE = 5;
-int PLANET_NBR = 3;
+const float PLANET_SIZE = 4;
+int PLANET_NBR = 12;
 std::vector<Vector2D> planets;
 
-const int PART_NBR = 40;
-const float PARTICLE_SIZE = 2;
+const int PART_NBR = 120;
+const float PARTICLE_SIZE = 3.5;
 std::vector<particle> particles;
 
-const float MAX_DIST = 180;
-const float MIN_DIST = 25;
-const float SAFE_DIST = 0;
+const float MAX_DIST = 140;
+const float MIN_DIST = 15;
+const float SAFE_DIST = 30;
 
 //Starts up SDL and creates window
 bool init();
@@ -162,7 +177,7 @@ int main( int argc, char* args[] )
      //////////// SETUP
 	 //planets initialazation
     for(int i = 0; i < PLANET_NBR; i++) {
-        Vector2D position (rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT);
+        Vector2D position ((rand() % SCREEN_WIDTH)/2 + SCREEN_WIDTH/4, (rand() % SCREEN_HEIGHT)/2 + SCREEN_HEIGHT/4);
 		planets.push_back(position);
     }
 
@@ -225,9 +240,12 @@ int main( int argc, char* args[] )
 
 		for(int i = 0; i < PART_NBR; i++)
 		{
-			filledCircleRGBA(gRenderer, particles[i].pos.getX(), particles[i].pos.getY(), PARTICLE_SIZE, 255,255,255,255);
-		}
+			thickLineRGBA(gRenderer, particles[i].pos.getX(), particles[i].pos.getY(), particles[i].prev_pos[PREV_POS_NBR-1].getX(), particles[i].prev_pos[PREV_POS_NBR-1].getY(), PARTICLE_SIZE, 255,255,255,255);
 
+			// filledCircleRGBA(gRenderer, particles[i].prev_pos[PREV_POS_NBR-1].getX(), particles[i].prev_pos[PREV_POS_NBR-1].getY(), PARTICLE_SIZE, 255,0,0,255);
+			// filledCircleRGBA(gRenderer, particles[i].pos.getX(), particles[i].pos.getY(), PARTICLE_SIZE, 255,255,255,255);
+		}
+		
 		//Update screen
 		SDL_RenderPresent( gRenderer );
 
@@ -235,6 +253,17 @@ int main( int argc, char* args[] )
 		// save_surface = SDL_GetWindowSurface(gWindow);
 		// // IMG_SaveJPG(save_surface, std::format("movio/{}.png",framecount));
 		// IMG_SavePNG(save_surface, "movio/mmm.png");
+
+		// SDL_Surface* sshot = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+		// SDL_RenderReadPixels(gRenderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
+
+		// std::string filename = "movio/" + std::to_string(framecount) + ".png";
+		// int lenght = filename.length();
+		// char* char_filename = new char[lenght + 1];
+		// strcpy(char_filename, filename.c_str());
+		// IMG_SavePNG(sshot, char_filename);
+		// SDL_FreeSurface(sshot);
+		// delete[] char_filename;
 
 		framecount++;
 	}
